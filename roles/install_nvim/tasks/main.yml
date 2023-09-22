@@ -1,0 +1,11 @@
+---
+- name : "Install nvim"
+  import_role:
+    name: "{{install_strategy.role}}"
+    tasks_from: "{{install_strategy.task}}"
+  vars:
+    install_targets: ["neovim"]
+- name : "Copy nvim config - that takes time :("
+  ansible.builtin.copy:
+    src: nvim
+    dest: ~/.config/

@@ -1,0 +1,8 @@
+---
+#TODO: This no works, but eh.
+- name: "Snap install {{install_targets}}"
+  community.general.snap :
+    name : "{{ install_targets }}"
+    state : "present"
+    classic: true
+  become: true

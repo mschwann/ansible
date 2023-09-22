@@ -1,5 +1,8 @@
 ---
-- hosts: localhost 
+- hosts: dockerbuilder
   roles:
     - role: install_tmux
-      install_strategy: {"role" : "common_install", "task" : "apt"}
+      install_strategy: {"role": "common_install", "task": "apt"}
+    - role: install_nvim
+      install_strategy: {"role" : "common_install", "task" : "none"} 
+      #TODO: fix snap.yml  
