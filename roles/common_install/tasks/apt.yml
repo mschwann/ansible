@@ -1,0 +1,8 @@
+---
+- name: "Apt install {{install_targets}}"
+  ansible.builtin.apt :
+    update_cache: yes
+    cache_valid_time: 3600
+    name : "{{ install_targets }}"
+    state : "present"
+  become: true

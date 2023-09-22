@@ -1,0 +1,19 @@
+---
+- name : "Install tmux"
+  import_role:
+    name: "{{install_strategy.role}}"
+    tasks_from: "{{install_strategy.task}}"
+  vars:
+    install_targets: ["tmux"]
+- name : "tpm plugin install"
+  git:
+    repo: https://github.com/tmux-plugins/tpm
+    dest: "~/.tmux/plugins/tpm"
+- name : "Create tmux config directory"
+  file:
+    path: ~/.config/tmux/
+    state: directory
+- name : "Copy tmux config"
+  ansible.builtin.copy:
+    src: tmux.conf
+    dest: ~/.config/tmux/tmux.conf
