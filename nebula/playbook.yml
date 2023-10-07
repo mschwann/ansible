@@ -56,6 +56,6 @@
         - name : "Activate service"
           ansible.builtin.systemd:
             name: nebula
-            state: started
+            state: restarted
             enabled: true
       become: yes

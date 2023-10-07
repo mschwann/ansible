@@ -1,0 +1,52 @@
+# PKI paths
+pki:
+  ca: /etc/nebula/ca.crt
+  cert: /etc/nebula/host.crt
+  key: /etc/nebula/host.key
+
+# Need a static host map, using the DNS name of the lighthouse
+static_host_map:
+  #Put all of your lighthouses here
+  '172.16.0.1': ['51.38.134.52:4242']
+
+#This is completely undocumented
+#static_map is how to interpret static_host_map
+#It defaults to ip4, trying to connect to the lighthouse
+#using only ipv4. This sorta-kinda makes sense since the node
+#knows its own public v6 already but not its public v4 (Via NAT)
+#so connecting to the lighthouse via v4 lets it learn that
+#For ipv6-only hosts, change to `ip6` instead
+static_map:
+  network: ip4
+
+# Lighthouse config for clients
+lighthouse:
+  hosts:
+    - '172.16.0.1'
+
+#Listen
+listen:
+  #Default for this key is 0.0.0.0 which is v4-only and stupid
+  host: '[::]'
+  #Port of 0 means randomly choose, usually good for clients
+  #Want to set to 4242 for relays and lighthouses
+  port: 0
+
+#Firewall settings
+firewall:
+  outbound:
+    # Allow all outbound traffic from this node
+    - port: any
+      proto: any
+      host: any
+
+  inbound:
+    # Allow icmp between any nebula hosts
+    - port: any
+      proto: any
+      host: any
+relay:
+  relays:
+   - 172.16.0.1
+  am_relay: false
+  use_relays: true
