@@ -1,0 +1,61 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Generate master-keys
+      shell: ../../bin/nebula-cert ca -name "zerus.org"
+      args:
+        chdir: ./temp-files/master
+      register: res
+      failed_when: res.rc > 1
+      changed_when: res.rc == 0
+- hosts: nebulas
+  tasks:
+    - name : Generate keys for {{nebula_name}}
+      shell: ../../bin/nebula-cert sign -name "{{nebula_name}}" -ip {{nebula_ip}} --ca-crt ../master/ca.crt --ca-key ../master/ca.key
+      args:
+        chdir: ./temp-files/keys
+      delegate_to: localhost
+      register: res
+      failed_when: res.rc > 1
+      changed_when: res.rc == 0
+    - name: Install nebula on {{nebula_name}}
+      block:
+        - name: "Copy nebula bin"
+          ansible.builtin.copy:
+            src: ./bin/nebula
+            dest: /usr/sbin/nebula
+            mode: 0755
+        - name: Create /etc/nebula
+          ansible.builtin.file:
+            path: /etc/nebula
+            state: directory
+            mode: '0755'
+        - name : "Copy host.crt"
+          ansible.builtin.copy:
+            src: ./temp-files/keys/{{nebula_name}}.crt
+            dest: /etc/nebula/host.crt
+        - name : "Copy host.key"
+          ansible.builtin.copy:
+            src: ./temp-files/keys/{{nebula_name}}.key
+            dest: /etc/nebula/host.key
+        - name : "Copy ca.crt"
+          ansible.builtin.copy:
+            src: ./temp-files/master/ca.crt
+            dest: /etc/nebula/ca.crt
+        - name : "Copy config.yml"
+          ansible.builtin.copy:
+            src: ./bin/config-{{nebula_role}}.yml
+            dest: /etc/nebula/config.yml
+        - name : "Copy service file"
+          ansible.builtin.copy:
+            src: ./bin/nebula.service
+            dest: /etc/systemd/system/nebula.service
+        - name: Just force systemd to reread configs
+          ansible.builtin.systemd:
+            daemon_reload: true
+        - name : "Activate service"
+          ansible.builtin.systemd:
+            name: nebula
+            state: started
+            enabled: true
+      become: yes
